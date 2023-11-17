@@ -172,7 +172,7 @@ def index() -> rx.Component:
                 ),
                 rx.tbody(
                     rx.cond(
-                        # TODO follow up on "flashing" issue
+                        # TODO follow up on "flashing" issue (needs is_hydrated cond right now...)
                         # Repro sequence:
                         # 1. Add a new flag X
                         # 2. Save
