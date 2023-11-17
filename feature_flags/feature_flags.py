@@ -77,23 +77,23 @@ class FeatureFlagsState(rx.State):
         self.pending_creates_or_updates[k] = val
 
     def save_to_db(self):
-        for k, v in self.pending_creates_or_updates.items():
-            if k not in self.pending_deletes:
-                with rx.session() as session:
+        with rx.session() as session:
+            for k, v in self.pending_creates_or_updates.items():
+                if k not in self.pending_deletes:
+                    # TODO: Do we have to select the item before updating it?
                     ff = session.exec(FeatureFlags.select.where(FeatureFlags.name == k)).first()
                     if not ff:
                         ff = FeatureFlags(name=k, value=v)
                     else:
                         ff.value = v
                     session.add(ff)
-                    session.commit()
 
-        for k in self.pending_deletes:
-            with rx.session() as session:
+            for k in self.pending_deletes:
+                # TODO: Do we have to select the item before deleting it?
                 ff = session.exec(FeatureFlags.select.where(FeatureFlags.name == k)).first()
                 if ff:
                     session.delete(ff)
-                session.commit()
+            session.commit()
         self.pending_deletes = set()
         self.pending_creates_or_updates = {}
         self.load_feature_flags_from_db()
